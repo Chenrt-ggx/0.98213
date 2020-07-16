@@ -1,0 +1,150 @@
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
+#pragma GCC optimize("Ofast")
+#pragma GCC optimize("inline")
+#pragma GCC optimize("-fgcse")
+#pragma GCC optimize("-fgcse-lm")
+#pragma GCC optimize("-fipa-sra")
+#pragma GCC optimize("-ftree-pre")
+#pragma GCC optimize("-ftree-vrp")
+#pragma GCC optimize("-fpeephole2")
+#pragma GCC optimize("-ffast-math")
+#pragma GCC optimize("-fsched-spec")
+#pragma GCC optimize("unroll-loops")
+#pragma GCC optimize("-falign-jumps")
+#pragma GCC optimize("-falign-loops")
+#pragma GCC optimize("-falign-labels")
+#pragma GCC optimize("-fdevirtualize")
+#pragma GCC optimize("-fcaller-saves")
+#pragma GCC optimize("-fcrossjumping")
+#pragma GCC optimize("-fthread-jumps")
+#pragma GCC optimize("-funroll-loops")
+#pragma GCC optimize("-fwhole-program")
+#pragma GCC optimize("-freorder-blocks")
+#pragma GCC optimize("-fschedule-insns")
+#pragma GCC optimize("inline-functions")
+#pragma GCC optimize("-ftree-tail-merge")
+#pragma GCC optimize("-fschedule-insns2")
+#pragma GCC optimize("-fstrict-aliasing")
+#pragma GCC optimize("-fstrict-overflow")
+#pragma GCC optimize("-falign-functions")
+#pragma GCC optimize("-fcse-skip-blocks")
+#pragma GCC optimize("-fcse-follow-jumps")
+#pragma GCC optimize("-fsched-interblock")
+#pragma GCC optimize("-fpartial-inlining")
+#pragma GCC optimize("no-stack-protector")
+#pragma GCC optimize("-freorder-functions")
+#pragma GCC optimize("-findirect-inlining")
+#pragma GCC optimize("-fhoist-adjacent-loads")
+#pragma GCC optimize("-frerun-cse-after-loop")
+#pragma GCC optimize("inline-small-functions")
+#pragma GCC optimize("-finline-small-functions")
+#pragma GCC optimize("-ftree-switch-conversion")
+#pragma GCC optimize("-foptimize-sibling-calls")
+#pragma GCC optimize("-fexpensive-optimizations")
+#pragma GCC optimize("-funsafe-loop-optimizations")
+#pragma GCC optimize("inline-functions-called-once")
+#pragma GCC optimize("-fdelete-null-pointer-checks")
+
+#include <stdio.h>
+
+struct {unsigned int con1,con2,s[26];} a[500100];
+unsigned char buffer[10000000],print[1000100],*s1[500100],*s2[500100];
+unsigned int outlen,ecl[500100],fst1[40000],lst1[40000],nxt1[500100],fst2[40000],lst2[40000],nxt2[500100];
+unsigned int read() {unsigned int q=0; unsigned char c=getchar(); while (c>='0' && c<='9') q=(q<<3)+(q<<1)+(c^48),c=getchar(); return q;}
+void digit(unsigned int x) {if (x>9) digit(x/10); print[outlen++]=x%10^'0'; return;}
+
+int main()
+{
+	unsigned char* pos; unsigned int tmp,n,i,j=0;
+	FILE *in,*out; unsigned int len1=0,len2=0,top1=0,top2=0,sum1=0,sum2=0,same1=0,same2=0;
+	const unsigned char ascii[256]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+	const unsigned char alpha[256]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25};
+	in=fopen("article1.txt","rb");
+	n=fread(buffer,1,10000000,in); buffer[n]=0;
+	tmp=i=0; while (buffer[i])
+	{
+		while (ascii[buffer[i]])
+		{
+			if (!a[tmp].s[alpha[buffer[i]]])
+			a[tmp].s[alpha[buffer[i]]]=++j;
+			tmp=a[tmp].s[alpha[buffer[i++]]];
+		}
+		a[tmp].con1++,tmp=0;
+		while (buffer[i] && !ascii[buffer[i]]) ++i;
+	}
+	fclose(in),in=fopen("article2.txt","rb");
+	n=fread(buffer,1,10000000,in); buffer[n]=0;
+	tmp=i=0; while (buffer[i])
+	{
+		while (ascii[buffer[i]])
+		{
+			if (!a[tmp].s[alpha[buffer[i]]])
+			a[tmp].s[alpha[buffer[i]]]=++j;
+			tmp=a[tmp].s[alpha[buffer[i++]]];
+		}
+		a[tmp].con2++,tmp=0;
+		while (buffer[i] && !ascii[buffer[i]]) ++i;
+	}
+	fclose(in),in=fopen("stopwords.txt","rb");
+	n=fread(buffer,1,10000000,in); buffer[n]=0;
+	tmp=i=0; while (buffer[i])
+	{
+		while (ascii[buffer[i]])
+		{
+			if (!a[tmp].s[alpha[buffer[i]]])
+			{while (ascii[buffer[i]]) ++i; tmp=0; break;}
+			tmp=a[tmp].s[alpha[buffer[i++]]];
+		}
+		if (tmp) tmp=a[tmp].con1=a[tmp].con2=0;
+		while (buffer[i] && !ascii[buffer[i]]) ++i;
+	}
+	fclose(in),in=fopen("dictionary.txt","rb");
+	n=fread(buffer,1,10000000,in); buffer[n]=0;
+	tmp=i=0; while (buffer[i])
+	{
+		pos=&buffer[i]; while (ascii[buffer[i]])
+		{
+			if (!a[tmp].s[alpha[buffer[i]]])
+			{while (ascii[buffer[i]]) ++i; tmp=0; break;}
+			tmp=a[tmp].s[alpha[buffer[i++]]];
+		}
+		if (tmp)
+		{
+			if (a[tmp].con1)
+			{
+				if (!fst1[a[tmp].con1]) fst1[a[tmp].con1]=tmp;
+				nxt1[lst1[a[tmp].con1]]=tmp,lst1[a[tmp].con1]=tmp;
+				s1[tmp]=pos,len1++; if (a[tmp].con1>top1) top1=a[tmp].con1;
+			}
+			if (a[tmp].con2)
+			{
+				if (!fst2[a[tmp].con2]) fst2[a[tmp].con2]=tmp;
+				nxt2[lst2[a[tmp].con2]]=tmp,lst2[a[tmp].con2]=tmp;
+				s2[tmp]=pos,len2++; if (a[tmp].con2>top2) top2=a[tmp].con2;
+			}
+			tmp=0;
+		}
+		while (buffer[i] && !ascii[buffer[i]]) ++i;
+	}
+	fclose(in),n=read(); if (n>len1) n=len1; if (n>len2) n=len2;
+	print[outlen++]='\n'; for (tmp=0,i=top1;i && tmp<n;i--)
+	for (j=fst1[i];j && tmp<n;j=nxt1[j])
+	{
+		pos=s1[j]; while (ascii[*pos]) print[outlen++]=*pos++;
+		print[outlen++]=32,digit(i),print[outlen++]='\n';
+		sum1+=i,tmp++,ecl[j]=i;
+	}
+	print[outlen++]='\n'; for (tmp=0,i=top2;i && tmp<n;i--)
+	for (j=fst2[i];j && tmp<n;j=nxt2[j])
+	{
+		pos=s2[j]; while (ascii[*pos]) print[outlen++]=*pos++;
+		print[outlen++]=32,digit(i),print[outlen++]='\n',sum2+=i,tmp++;
+		if (ecl[j]) same1+=ecl[j],same2+=i;
+	}
+	out=fopen("results.txt","w");
+	double pro1=1.0*same1/sum1,pro2=1.0*same2/sum2;
+	double ans=(pro1<pro2?pro1:pro2)/(pro1>pro2?pro1:pro2);
+	printf("%.5lf\n",ans),fprintf(out,"%.5lf\n",ans);
+	fwrite(print,1,outlen,out),fclose(out); return 0;
+}

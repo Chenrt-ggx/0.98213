@@ -1,0 +1,145 @@
+#pragma GCC optimize(2)
+#pragma GCC optimize(3,"Ofast","inline")
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define max(x,y) ((x)>(y)?(x):(y))
+#define min(x,y) ((x)<(y)?(x):(y))
+
+typedef struct tree {struct tree *ls,*rs; char s[50]; int con1,con2,siz,exist;} stu,*ptr;
+FILE *in,*out; ptr root; stu pol[500000]; typedef struct {int num; char s[50];} dic;
+int n,top,len1,len2; char r[50]; dic in1[500000],in2[500000],cpy1[500000],cpy2[500000];
+
+int read() {
+	int cnt=0; char c=(fgetc(in)|32); if (c==EOF) return 0;
+	while (!('a'<=c && c<='z')) {c=(fgetc(in)|32); if (c==EOF) return 0;}
+	while ('a'<=c && c<='z') {r[cnt++]=c; c=(fgetc(in)|32);}
+	r[cnt]=0; return 1;
+}
+
+inline int size(ptr now) {return now?now->siz:0;}
+
+void pushup(ptr now) {
+	if (now==NULL) return;
+	now->siz=1+size(now->ls);
+	now->siz+=size(now->rs);
+	return;
+}
+
+void left(ptr* now) {
+	ptr tmp=(*now)->rs; (*now)->rs=tmp->ls;
+	tmp->ls=*now,tmp->siz=(*now)->siz;
+	pushup(*now),pushup(tmp),*now=tmp; return;
+}
+
+void right(ptr* now) {
+	ptr tmp=(*now)->ls; (*now)->ls=tmp->rs;
+	tmp->rs=*now,tmp->siz=(*now)->siz;
+	pushup(*now),pushup(tmp),*now=tmp; return;
+}
+
+void maintain(ptr *now,int f) {
+	if (*now==NULL) return;
+	if (f) {
+		if ((*now)->rs && size((*now)->rs->rs)>size((*now)->ls)) left(now);
+		else if ((*now)->rs && size((*now)->rs->ls)>size((*now)->ls))
+		right(&((*now)->rs)),left(now); else return;
+	}
+	else {
+		if ((*now)->ls && size((*now)->ls->ls)>size((*now)->rs)) right(now);
+		else if ((*now)->ls && size((*now)->ls->rs)>size((*now)->rs))
+		left(&((*now)->ls)),right(now); else return;
+	}
+	maintain(&((*now)->ls),0),maintain(&((*now)->rs),1);
+	maintain(now,1),maintain(now,0); return;
+}
+
+void ins(ptr* now,int f) {
+	if (*now==NULL) {
+		*now=&pol[top++],strcpy((*now)->s,r);
+		(*now)->con1+=!f,(*now)->con2+=f;
+		(*now)->siz=1; return;
+	}
+	int t=strcmp(r,(*now)->s);
+	if (t>0) {ins(&(*now)->rs,f); return;}
+	if (t<0) {ins(&(*now)->ls,f); return;}
+	(*now)->con1+=!f,(*now)->con2+=f;
+	pushup(*now),maintain(now,t<0); return;
+}
+
+void del(ptr* now) {
+	if (*now==NULL) return;
+	int t=strcmp(r,(*now)->s);
+	if (t>0) {del(&(*now)->rs); return;}
+	if (t<0) {del(&(*now)->ls); return;}
+	if ((*now)->ls==NULL) {*now=(*now)->rs; return;}
+	if ((*now)->rs==NULL) {*now=(*now)->ls; return;}
+	ptr cng=(*now)->rs; while (cng->ls) cng=cng->ls;
+	strcpy((*now)->s,cng->s),(*now)->exist=cng->exist;
+	(*now)->con1=cng->con1,(*now)->con2=cng->con2;
+	strcpy(r,cng->s),del(&(*now)->rs); return;
+}
+
+void change(ptr now) {
+	if (now==NULL) return;
+	int t=strcmp(r,now->s);
+	if (t>0) {change(now->rs); return;}
+	if (t<0) {change(now->ls); return;}
+	now->exist++; return;
+}
+
+void init() {
+	in=fopen("article1.txt","r"); while (read()) ins(&root,0); fclose(in);
+	in=fopen("article2.txt","r"); while (read()) ins(&root,1); fclose(in);
+	in=fopen("dictionary.txt","r"); while (fscanf(in,"%s",r)!=EOF) change(root); fclose(in);
+	in=fopen("stopwords.txt","r"); while (fscanf(in,"%s",r)!=EOF) del(&root); fclose(in);
+	scanf("%d",&n); return;
+}
+
+void dfs(ptr now) {
+	if (now->exist && now->con1) in1[len1].num=now->con1,strcpy(in1[len1++].s,now->s);
+	if (now->exist && now->con2) in2[len2].num=now->con2,strcpy(in2[len2++].s,now->s);
+	if (now->ls) dfs(now->ls); if (now->rs) dfs(now->rs); return;
+}
+
+int cmp1(const void *a,const void *b) {
+	if (((dic*)a)->num<((dic*)b)->num) return 1;
+	if (((dic*)a)->num>((dic*)b)->num) return -1;
+	return strcmp(((dic*)a)->s,((dic*)b)->s);
+}
+
+int cmp2(const void *a,const void *b)
+{return strcmp(((dic*)a)->s,((dic*)b)->s);}
+
+void print(int sum1,int sum2,int sam1,int sam2) {
+	out=fopen("results.txt","w");
+	double pro1=(double)sam1/(double)sum1;
+	double pro2=(double)sam2/(double)sum2;
+	double ans=min(pro1,pro2)/max(pro1,pro2);
+	printf("%.5lf\n",ans),fprintf(out,"%.5lf\n",ans);
+	fputc('\n',in); for (int i=0;i<n;i++)
+	fprintf(out,"%s %d\n",in1[i].s,in1[i].num);
+	fputc('\n',in); for (int i=0;i<n;i++)
+	fprintf(out,"%s %d\n",in2[i].s,in2[i].num);
+	fclose(out); return;
+}
+
+void solve() {
+	int sum1=0,sum2=0,sam1=0,sam2=0;
+	dfs(root),n=min(min(n,len1),len2);
+	qsort(in1,len1,sizeof(dic),cmp1);
+	qsort(in2,len2,sizeof(dic),cmp1);
+	for (int i=0;i<n;i++) cpy1[i]=in1[i],sum1+=in1[i].num;
+	for (int i=0;i<n;i++) cpy2[i]=in2[i],sum2+=in2[i].num;
+	qsort(cpy1,n,sizeof(dic),cmp2);
+	qsort(cpy2,n,sizeof(dic),cmp2);
+	int i=0,j=0,tmp; while (i<n && j<n) {
+		tmp=strcmp(cpy1[i].s,cpy2[j].s);
+		if (tmp<0) i++; else if (tmp>0) j++;
+		else sam1+=cpy1[i].num,sam2+=cpy2[j].num,i++,j++;
+	}
+	print(sum1,sum2,sam1,sam2); return;
+}
+
+int main() {init(),solve(); return 0;}

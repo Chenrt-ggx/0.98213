@@ -1,0 +1,11 @@
+1.00000
+
+sunday 4
+thursday 4
+friday 3
+saturday 2
+
+monday 4
+sunday 4
+tuesday 3
+wednesday 2

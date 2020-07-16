@@ -1,0 +1,4 @@
+input1：30
+input2：500
+input3：1000
+input4：1000000000
